@@ -1,0 +1,3 @@
+com\example\minibilling\MinibillingApplicationTests.class
+com\example\minibilling\service\BillingServiceTest.class
+com\example\minibilling\service\DistributionServiceTest.class

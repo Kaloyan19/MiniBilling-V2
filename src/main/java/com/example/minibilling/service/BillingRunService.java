@@ -56,7 +56,7 @@ public class BillingRunService {
     private LocalDate getLastBillingRunDate() {
         BillingRunEntity last = billingRunRepository.findTopByOrderByEndDateDesc();
         if (last == null) {
-            throw new RuntimeException("Няма предишен Billing Run!");
+            return LocalDate.of(2000, 1, 1);
         }
         return last.getEndDate().toLocalDate();
     }
