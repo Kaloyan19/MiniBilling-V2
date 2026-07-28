@@ -34,4 +34,9 @@ public class AuthController {
         String token = jwtService.generateToken(account.getUsername(), account.getRole().name());
         return ResponseEntity.ok(token);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.ok().build();
+    }
 }
