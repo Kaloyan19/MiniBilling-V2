@@ -2,6 +2,6 @@ package com.example.minibilling.model.entity;
 
 public enum ImportType {
     PRICES,
-    READINGSc,
+    READINGS,
     USERS
 }

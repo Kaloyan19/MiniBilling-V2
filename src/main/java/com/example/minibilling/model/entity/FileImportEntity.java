@@ -33,4 +33,9 @@ public class FileImportEntity {
     public UserEntity getUploadedBy() { return uploadedBy; }
     public OffsetDateTime getUploadedAt() { return uploadedAt; }
     public byte[] getFile() { return file; }
+
+    public void setId(String id) { this.id = id; }
+    public void setFilename(String filename) { this.filename = filename; }
+    public void setUploadedAt(OffsetDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
+    public void setType(ImportType type) { this.type = type; }
 }
