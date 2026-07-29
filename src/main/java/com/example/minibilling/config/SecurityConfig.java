@@ -53,6 +53,8 @@ public class SecurityConfig {
                         .requestMatchers("/billing/**").hasRole("ADMIN")
                         .requestMatchers("/stats/**").hasRole("ADMIN")
                         .requestMatchers("/audit/**").hasRole("ADMIN")
+                        .requestMatchers("/customers/**").hasRole("ADMIN")
+                        .requestMatchers("/usage/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -87,7 +89,7 @@ public class SecurityConfig {
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
-        return null;
+        return request.getParameter("token");
     }
 
     private void authenticateUser(String token) {
