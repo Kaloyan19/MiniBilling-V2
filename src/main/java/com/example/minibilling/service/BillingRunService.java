@@ -7,14 +7,20 @@ import com.example.minibilling.model.entity.Severity;
 import com.example.minibilling.repository.UserRepository;
 import com.example.minibilling.repository.jpa.BillingRunEntityRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Service
 public class BillingRunService {
+
+    private static final ZoneId SOFIA = ZoneId.of("Europe/Sofia");
 
     private final UserRepository userRepository;
     private final BillingService billingService;
@@ -34,31 +40,40 @@ public class BillingRunService {
     public BillingRunResult run() {
         LocalDate from = getLastBillingRunDate();
         LocalDate to = LocalDate.now();
+        BillingRunResult result = processUsers(from, to, null);
+        saveBillingRun(from, result.success(), result.failed(), result.skipped());
+        return result;
+    }
 
-        int success = 0;
-        int failed = 0;
-        int skipped = 0;
-
-        for (User user : userRepository.findAll()) {
+    public void runWithProgress(SseEmitter emitter) {
+        new Thread(() -> {
             try {
-                Optional<Invoice> invoice = billingService
-                        .generateAndSaveInvoice(user.reference(), from, to);
-                if (invoice.isPresent()) success++;
-                else skipped++;
-            } catch (Exception e) {
-                failed++;
-                errorLogService.log(
-                        "BILLING_ERROR",
-                        e.getMessage(),
-                        user.reference(),
-                        "BillingRunService",
-                        Severity.ERROR
-                );
-            }
-        }
+                LocalDate from = getLastBillingRunDate();
+                LocalDate to = LocalDate.now();
 
-        saveBillingRun(from, to, success, failed, skipped);
-        return new BillingRunResult(success, failed, skipped);
+                BillingRunResult result = processUsers(from, to, data -> {
+                    try {
+                        emitter.send(SseEmitter.event()
+                                .data("{\"progress\":" + data[0] +
+                                        ",\"success\":" + data[1] +
+                                        ",\"failed\":" + data[2] +
+                                        ",\"skipped\":" + data[3] + "}"));
+                    } catch (Exception e) {
+                        emitter.completeWithError(e);
+                    }
+                });
+
+                saveBillingRun(from, result.success(), result.failed(), result.skipped());
+
+                emitter.send(SseEmitter.event()
+                        .data("{\"progress\":100,\"success\":" + result.success() +
+                                ",\"failed\":" + result.failed() +
+                                ",\"skipped\":" + result.skipped() + "}"));
+                emitter.complete();
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        }).start();
     }
 
     public BillingRunEntity getLastBillingRun() {
@@ -67,17 +82,45 @@ public class BillingRunService {
 
     private LocalDate getLastBillingRunDate() {
         BillingRunEntity last = billingRunRepository.findTopByOrderByEndDateDesc();
-        if (last == null) {
-            return LocalDate.of(2000, 1, 1);
-        }
+        if (last == null) return LocalDate.of(2000, 1, 1);
         return last.getEndDate().toLocalDate();
     }
 
-    private void saveBillingRun(LocalDate from, LocalDate to, int success, int failed, int skipped) {
+    private BillingRunResult processUsers(LocalDate from, LocalDate to, Consumer<int[]> onProgress) {
+        List<User> users = userRepository.findAll();
+        int total = users.size();
+        int success = 0, failed = 0, skipped = 0;
+
+        for (int i = 0; i < users.size(); i++) {
+            User user = users.get(i);
+            try {
+                Optional<Invoice> invoice = billingService
+                        .generateAndSaveInvoice(user.reference(), from, to);
+                if (invoice.isPresent()) success++;
+                else {
+                    skipped++;
+                    errorLogService.log("NO_READINGS", "Няма достатъчно отчети",
+                            user.reference(), "BillingRunService", Severity.WARNING);
+                }
+            } catch (Exception e) {
+                failed++;
+                errorLogService.log("BILLING_ERROR", e.getMessage(),
+                        user.reference(), "BillingRunService", Severity.ERROR);
+            }
+
+            if (onProgress != null) {
+                int progress = (int) ((i + 1) * 100.0 / total);
+                onProgress.accept(new int[]{progress, success, failed, skipped});
+            }
+        }
+        return new BillingRunResult(success, failed, skipped);
+    }
+
+    private void saveBillingRun(LocalDate from, int success, int failed, int skipped) {
         BillingRunEntity entity = new BillingRunEntity();
         entity.setId(UUID.randomUUID().toString().replace("-", ""));
-        entity.setStartDate(from.atStartOfDay().atOffset(ZoneOffset.UTC));
-        entity.setEndDate(to.atStartOfDay().atOffset(ZoneOffset.UTC));
+        entity.setEndDate(OffsetDateTime.now(SOFIA));
+        entity.setStartDate(from.atStartOfDay().atZone(SOFIA).toOffsetDateTime());
         entity.setStatus("COMPLETED");
         entity.setSuccessCount(success);
         entity.setFailedCount(failed);

@@ -15,6 +15,9 @@ com\example\minibilling\model\entity\LineEntity.class
 com\example\minibilling\importer\PriceImporter.class
 com\example\minibilling\model\domain\ProductType.class
 com\example\minibilling\service\ErrorLogService.class
+com\example\minibilling\controllers\UsageController.class
+com\example\minibilling\service\CustomerService.class
+com\example\minibilling\service\UsageService.class
 com\example\minibilling\repository\jpa\InvoiceEntityRepository.class
 com\example\minibilling\reader\PricePeriodCsvReader.class
 com\example\minibilling\config\SecurityConfig$1.class
@@ -29,6 +32,7 @@ com\example\minibilling\controllers\LoginRequest.class
 com\example\minibilling\model\domain\Reading.class
 com\example\minibilling\repository\jpa\PriceEntityRepository.class
 com\example\minibilling\exception\GlobalExceptionHandler.class
+com\example\minibilling\model\domain\UsageResponse.class
 com\example\minibilling\validator\BillingDataValidator.class
 com\example\minibilling\model\entity\UserEntity.class
 com\example\minibilling\config\DataInitializer.class
@@ -54,6 +58,7 @@ com\example\minibilling\repository\jpa\AccountEntityRepository.class
 com\example\minibilling\model\domain\PricePeriod.class
 com\example\minibilling\reader\FileReader.class
 com\example\minibilling\controllers\ErrorLogController.class
+com\example\minibilling\controllers\CustomerController.class
 com\example\minibilling\controllers\BillingController.class
 com\example\minibilling\model\entity\ReadingEntity.class
 com\example\minibilling\controllers\ImportController.class
@@ -62,5 +67,6 @@ com\example\minibilling\model\domain\User.class
 com\example\minibilling\config\AppConfig.class
 com\example\minibilling\controllers\AuthController.class
 com\example\minibilling\repository\jpa\FileImportEntityRepository.class
+com\example\minibilling\model\domain\CustomerResponse.class
 com\example\minibilling\repository\jpa\UserEntityRepository.class
 com\example\minibilling\service\DistributionService.class
