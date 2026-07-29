@@ -14,6 +14,7 @@ com\example\minibilling\reader\UserCsvReader.class
 com\example\minibilling\model\entity\LineEntity.class
 com\example\minibilling\importer\PriceImporter.class
 com\example\minibilling\model\domain\ProductType.class
+com\example\minibilling\service\ErrorLogService.class
 com\example\minibilling\repository\jpa\InvoiceEntityRepository.class
 com\example\minibilling\reader\PricePeriodCsvReader.class
 com\example\minibilling\config\SecurityConfig$1.class
@@ -37,6 +38,7 @@ com\example\minibilling\controllers\StatsController.class
 com\example\minibilling\repository\jpa\BillingRunEntityRepository.class
 com\example\minibilling\importer\FileImporter.class
 com\example\minibilling\controllers\BillingRunController.class
+com\example\minibilling\model\entity\Severity.class
 com\example\minibilling\service\BillingRunService.class
 com\example\minibilling\model\domain\InvoiceLine.class
 com\example\minibilling\validator\ImportValidator.class
@@ -44,15 +46,18 @@ com\example\minibilling\service\JwtService.class
 com\example\minibilling\repository\jpa\ReadingEntityRepository.class
 com\example\minibilling\service\BillingRunService$BillingRunResult.class
 com\example\minibilling\model\entity\BillingRunEntity.class
+com\example\minibilling\model\entity\ErrorLogEntity.class
 com\example\minibilling\model\entity\ImportType.class
 com\example\minibilling\exception\BillingDataException.class
 com\example\minibilling\service\ImportService.class
 com\example\minibilling\repository\jpa\AccountEntityRepository.class
 com\example\minibilling\model\domain\PricePeriod.class
 com\example\minibilling\reader\FileReader.class
+com\example\minibilling\controllers\ErrorLogController.class
 com\example\minibilling\controllers\BillingController.class
 com\example\minibilling\model\entity\ReadingEntity.class
 com\example\minibilling\controllers\ImportController.class
+com\example\minibilling\repository\jpa\ErrorLogEntityRepository.class
 com\example\minibilling\model\domain\User.class
 com\example\minibilling\config\AppConfig.class
 com\example\minibilling\controllers\AuthController.class
