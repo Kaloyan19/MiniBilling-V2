@@ -4,6 +4,7 @@ C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\AuthController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\BillingController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\BillingRunController.java
+C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\ErrorLogController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\ImportController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\LoginRequest.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\StatsController.java
@@ -26,6 +27,7 @@ C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\User.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\AccountEntity.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\BillingRunEntity.java
+C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\ErrorLogEntity.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\FileImportEntity.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\ImportType.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\InvoiceEntity.java
@@ -33,6 +35,7 @@ C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\PriceEntity.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\ReadingEntity.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\Role.java
+C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\Severity.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\entity\UserEntity.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\reader\FileReader.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\reader\PricePeriodCsvReader.java
@@ -41,6 +44,7 @@ C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\repository\InvoiceRepository.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\repository\jpa\AccountEntityRepository.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\repository\jpa\BillingRunEntityRepository.java
+C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\repository\jpa\ErrorLogEntityRepository.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\repository\jpa\FileImportEntityRepository.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\repository\jpa\InvoiceEntityRepository.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\repository\jpa\PriceEntityRepository.java
@@ -52,6 +56,7 @@ C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\service\BillingRunService.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\service\BillingService.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\service\DistributionService.java
+C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\service\ErrorLogService.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\service\ImportService.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\service\InvoiceFileWriter.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\service\JwtService.java
