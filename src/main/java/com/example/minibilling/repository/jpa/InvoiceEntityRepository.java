@@ -8,4 +8,6 @@ import org.springframework.data.repository.query.Param;
 public interface InvoiceEntityRepository extends JpaRepository<InvoiceEntity, String>{
     @Query("SELECT i FROM InvoiceEntity i WHERE i.user.reference = :reference AND i.period = :period")
     InvoiceEntity findByUserReferenceAndPeriod(@Param("reference") String reference, @Param("period") String period);
+
+    java.util.Optional<InvoiceEntity> findFirstByNumber(String number);
 }
