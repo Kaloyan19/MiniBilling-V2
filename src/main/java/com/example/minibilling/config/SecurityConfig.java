@@ -35,6 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        System.out.println("SecurityConfig loaded");
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
@@ -49,6 +50,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/billing/run/stream").permitAll()
                         .requestMatchers("/import/**").hasRole("ADMIN")
                         .requestMatchers("/billing/**").hasRole("ADMIN")
                         .requestMatchers("/stats/**").hasRole("ADMIN")
@@ -78,6 +80,12 @@ public class SecurityConfig {
                 String token = extractToken(request);
                 if (token != null && jwtService.isTokenValid(token)) {
                     authenticateUser(token);
+                    String role = jwtService.extractRole(token);
+                    if (request.getRequestURI().contains("/billing/run/stream")
+                            && !"ADMIN".equals(role)) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        return;
+                    }
                 }
                 filterChain.doFilter(request, response);
             }

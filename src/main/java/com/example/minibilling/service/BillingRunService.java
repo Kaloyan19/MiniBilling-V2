@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public class BillingRunService {
 
     private static final ZoneId SOFIA = ZoneId.of("Europe/Sofia");
+    private volatile String runStatus = "NOT_STARTED";
 
     private final UserRepository userRepository;
     private final BillingService billingService;
@@ -46,6 +47,7 @@ public class BillingRunService {
     }
 
     public void runWithProgress(SseEmitter emitter) {
+        runStatus = "IN_PROGRESS";
         new Thread(() -> {
             try {
                 LocalDate from = getLastBillingRunDate();
@@ -63,12 +65,14 @@ public class BillingRunService {
                     }
                 });
 
-                saveBillingRun(from, result.success(), result.failed(), result.skipped());
-
-                emitter.send(SseEmitter.event()
-                        .data("{\"progress\":100,\"success\":" + result.success() +
-                                ",\"failed\":" + result.failed() +
-                                ",\"skipped\":" + result.skipped() + "}"));
+                if (!"NOT_STARTED".equals(runStatus)) {
+                    saveBillingRun(from, result.success(), result.failed(), result.skipped());
+                    runStatus = "COMPLETED";
+                    emitter.send(SseEmitter.event()
+                            .data("{\"progress\":100,\"success\":" + result.success() +
+                                    ",\"failed\":" + result.failed() +
+                                    ",\"skipped\":" + result.skipped() + "}"));
+                }
                 emitter.complete();
             } catch (Exception e) {
                 emitter.completeWithError(e);
@@ -79,6 +83,14 @@ public class BillingRunService {
     public BillingRunEntity getLastBillingRun() {
         return billingRunRepository.findTopByOrderByEndDateDesc();
     }
+
+    public void pause() { runStatus = "PAUSED"; }
+
+    public void resume() { runStatus = "IN_PROGRESS"; }
+
+    public void restart() { runStatus = "NOT_STARTED"; }
+
+    public String getRunStatus() { return runStatus; }
 
     private LocalDate getLastBillingRunDate() {
         BillingRunEntity last = billingRunRepository.findTopByOrderByEndDateDesc();
@@ -112,6 +124,23 @@ public class BillingRunService {
                 int progress = (int) ((i + 1) * 100.0 / total);
                 onProgress.accept(new int[]{progress, success, failed, skipped});
             }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+
+            while ("PAUSED".equals(runStatus)) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+            if ("NOT_STARTED".equals(runStatus)) break;
         }
         return new BillingRunResult(success, failed, skipped);
     }

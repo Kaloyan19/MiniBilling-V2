@@ -37,4 +37,22 @@ public class BillingRunController {
         billingRunService.runWithProgress(emitter);
         return emitter;
     }
+
+    @PostMapping("/run/pause")
+    public ResponseEntity<String> pause() {
+        billingRunService.pause();
+        return ResponseEntity.ok("PAUSED");
+    }
+
+    @PostMapping("/run/resume")
+    public ResponseEntity<String> resume() {
+        billingRunService.resume();
+        return ResponseEntity.ok("RESUMED");
+    }
+
+    @PostMapping("/run/restart")
+    public ResponseEntity<String> restart() {
+        billingRunService.restart();
+        return ResponseEntity.ok("RESTARTED");
+    }
 }
