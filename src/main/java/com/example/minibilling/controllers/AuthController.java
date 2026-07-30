@@ -1,6 +1,8 @@
 package com.example.minibilling.controllers;
 
+import com.example.minibilling.model.auth.NewUser;
 import com.example.minibilling.model.entity.AccountEntity;
+import com.example.minibilling.repository.AccountRepository;
 import com.example.minibilling.repository.jpa.AccountEntityRepository;
 import com.example.minibilling.service.JwtService;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AccountEntityRepository accountRepository;
+    private final AccountRepository accountRepo;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(AccountEntityRepository accountRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
+    public AuthController(AccountEntityRepository accountRepository, AccountRepository accountRepo, JwtService jwtService, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
+        this.accountRepo = accountRepo;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -38,5 +42,16 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/createUser")
+    public ResponseEntity<String> createUser(@RequestBody NewUser newUser) {
+        if (newUser == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountRepo.createAccount(newUser.name(), passwordEncoder.encode(newUser.password()), newUser.role().equals("ADMIN") ? com.example.minibilling.model.entity.Role.ADMIN : com.example.minibilling.model.entity.Role.USER);
+
+        return ResponseEntity.ok("User created successfully: " + newUser.name() + "-" + newUser.role());
     }
 }

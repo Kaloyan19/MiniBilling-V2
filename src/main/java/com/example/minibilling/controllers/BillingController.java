@@ -1,6 +1,7 @@
 package com.example.minibilling.controllers;
 
 import com.example.minibilling.model.domain.Invoice;
+import com.example.minibilling.model.domain.InvoiceSummary;
 import com.example.minibilling.repository.InvoiceRepository;
 import com.example.minibilling.service.BillingService;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/invoices")
@@ -44,4 +46,10 @@ public class BillingController {
         if (invoice == null) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(invoice);
     }
+
+    @GetMapping
+    public ResponseEntity<List<InvoiceSummary>> listInvoices() {
+        return ResponseEntity.ok(invoiceRepository.findAllSummaries());
+    }
+
 }
