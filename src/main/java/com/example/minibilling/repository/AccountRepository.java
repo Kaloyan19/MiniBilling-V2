@@ -29,4 +29,13 @@ public class AccountRepository {
         account.setRole(role);
         return accountEntityRepository.save(account);
     }
+
+    public AccountEntity deleteAccount(String username) {
+        AccountEntity account = accountEntityRepository.findByUsername(username);
+        if (account == null) {
+            return null;
+        }
+        accountEntityRepository.delete(account);
+        return account;
+    }
 }

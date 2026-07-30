@@ -54,4 +54,13 @@ public class AuthController {
 
         return ResponseEntity.ok("User created successfully: " + newUser.name() + "-" + newUser.role());
     }
+
+    @PostMapping("/delete/{username}")
+    public ResponseEntity<String> deleteUser(@PathVariable String username) {
+        AccountEntity deletedAccount = accountRepo.deleteAccount(username);
+        if (deletedAccount == null) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+        return ResponseEntity.ok("User deleted successfully: " + deletedAccount.getUsername());
+    }
 }
