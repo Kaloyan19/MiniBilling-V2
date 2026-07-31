@@ -30,7 +30,7 @@ public class ReadingRepository {
                 .toList();
     }
 
-    private Reading toDomain(ReadingEntity entity){
+    public Reading toDomain(ReadingEntity entity){
         return new Reading(
                 entity.getUser().getReference(),
                 entity.getProduct(),

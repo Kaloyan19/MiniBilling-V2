@@ -2,10 +2,13 @@ package com.example.minibilling.service;
 
 import com.example.minibilling.exception.UserNotFoundException;
 import com.example.minibilling.model.domain.*;
+import com.example.minibilling.model.entity.ReadingEntity;
 import com.example.minibilling.repository.InvoiceRepository;
 import com.example.minibilling.repository.PriceRepository;
 import com.example.minibilling.repository.ReadingRepository;
 import com.example.minibilling.repository.UserRepository;
+import com.example.minibilling.repository.jpa.ReadingEntityRepository;
+import com.example.minibilling.repository.jpa.UserEntityRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
@@ -21,48 +24,79 @@ public class BillingService {
     private final PriceRepository priceRepository;
     private final AtomicInteger invoiceCounter = new AtomicInteger(10000);
     private final InvoiceRepository invoiceRepository;
+    private final ReadingEntityRepository readingEntityRepository;
 
-    public BillingService(UserRepository userRepository, ReadingRepository readingRepository, PriceRepository priceRepository,
-                          InvoiceRepository invoiceRepository, DistributionService distributionService){
+    public BillingService(UserRepository userRepository,
+                          ReadingRepository readingRepository,
+                          PriceRepository priceRepository,
+                          InvoiceRepository invoiceRepository,
+                          DistributionService distributionService,
+                          ReadingEntityRepository readingEntityRepository) {
         this.userRepository = userRepository;
         this.readingRepository = readingRepository;
         this.priceRepository = priceRepository;
         this.invoiceRepository = invoiceRepository;
         this.distributionService = distributionService;
+        this.readingEntityRepository = readingEntityRepository;
     }
 
     public Optional<Invoice> generateAndSaveInvoice(String reference, LocalDate from, LocalDate to) {
         Optional<Invoice> invoice = generateInvoice(reference, from, to);
         if (invoice.isEmpty()) return Optional.empty();
-        invoiceRepository.save(invoice.get(), reference, from + "_" + to);
+
+        List<InvoiceLine> lines = invoice.get().lines();
+        System.out.println("Lines size: " + lines.size()); // ← тук
+        String period = lines.get(0).lineStart().toLocalDate() + "_" +
+                lines.get(lines.size()-1).lineEnd().toLocalDate();
+
+        invoiceRepository.save(invoice.get(), reference, period);
+
+        // маркираме readings като invoiced
+        readingEntityRepository.findByUserReferenceAndInvoicedFalse(reference)
+                .forEach(r -> {
+                    r.setInvoiced(true);
+                    readingEntityRepository.save(r);
+                });
+
         return invoice;
     }
 
     private Optional<Invoice> generateInvoice(String reference, LocalDate from, LocalDate to) {
-        if (!from.isBefore(to)) {
-            throw new DateTimeException("Началната дата трябва да е преди крайната!");
-        }
-
         User user = userRepository.findByReference(reference);
         if (user == null) throw new UserNotFoundException(reference);
 
-        List<Reading> readings = findReadings(user, from, to);
+        List<Reading> readings = findReadings(user);
+        System.out.println(reference + " readings: " + readings.size());
         if (readings.size() < 2) return Optional.empty();
 
         List<PricePeriod> prices = findPrices(user);
+        System.out.println(reference + " prices: " + prices.size()); // ← добави тук
         List<InvoiceLine> lines = createInvoiceLines(readings, prices, user);
+        System.out.println(reference + " lines: " + lines.size()); // ← и тук
         return Optional.of(buildInvoice(user, lines));
     }
 
-    private List<Reading> findReadings(User user, LocalDate from, LocalDate to) {
-        List<Reading> readings = readingRepository.findByCustomerReference(user.reference())
-                .stream()
-                .filter(r -> !r.date().toLocalDate().isBefore(from))
-                .filter(r -> !r.date().toLocalDate().isAfter(to))
-                .sorted(Comparator.comparing(Reading::date))
+    private List<Reading> findReadings(User user) {
+        // последното invoiced reading (anchor point)
+        Optional<ReadingEntity> lastInvoicedOpt = readingEntityRepository
+                .findTopByUserReferenceAndInvoicedTrueOrderByDateTimeDesc(user.reference());
+
+        ReadingEntity lastInvoiced = lastInvoicedOpt.orElse(null);
+
+        // всички uninvoiced readings
+        List<ReadingEntity> uninvoiced = readingEntityRepository
+                .findByUserReferenceAndInvoicedFalse(user.reference());
+
+        if (uninvoiced.isEmpty()) return List.of();
+
+        List<ReadingEntity> toProcess = new ArrayList<>();
+        if (lastInvoiced != null) toProcess.add(lastInvoiced); // anchor
+        toProcess.addAll(uninvoiced);
+
+        return toProcess.stream()
+                .sorted(Comparator.comparing(ReadingEntity::getDateTime))
+                .map(readingRepository::toDomain)
                 .toList();
-        System.out.println("Readings for " + user.reference() + ": " + readings.size());
-        return readings;
     }
 
     private List<PricePeriod> findPrices(User user) {
@@ -78,10 +112,13 @@ public class BillingService {
         for (int i = 0; i < readings.size() - 1; i++) {
             Reading from = readings.get(i);
             Reading to = readings.get(i + 1);
+            System.out.println("Processing: " + from.date() + " -> " + to.date());
             double totalQuantity = round2(to.meterReading() - from.meterReading());
+            System.out.println("Quantity: " + totalQuantity);
 
             List<DistributionLine> distributed = distributionService.distribute(
                     from.date(), to.date(), totalQuantity, prices);
+            System.out.println("Distributed lines: " + distributed.size());
 
             for (DistributionLine dl : distributed) {
                 lines.add(new InvoiceLine(index++, dl.quantity(), dl.start(), dl.end(),

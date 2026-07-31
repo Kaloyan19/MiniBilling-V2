@@ -6,6 +6,7 @@ import com.example.minibilling.model.entity.BillingRunEntity;
 import com.example.minibilling.model.entity.Severity;
 import com.example.minibilling.repository.UserRepository;
 import com.example.minibilling.repository.jpa.BillingRunEntityRepository;
+import com.example.minibilling.repository.jpa.ReadingEntityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -27,15 +28,18 @@ public class BillingRunService {
     private final BillingService billingService;
     private final BillingRunEntityRepository billingRunRepository;
     private final ErrorLogService errorLogService;
+    private final ReadingEntityRepository readingEntityRepository;
 
     public BillingRunService(UserRepository userRepository,
                              BillingService billingService,
                              BillingRunEntityRepository billingRunRepository,
-                             ErrorLogService errorLogService) {
+                             ErrorLogService errorLogService,
+                             ReadingEntityRepository readingEntityRepository) {
         this.userRepository = userRepository;
         this.billingService = billingService;
         this.billingRunRepository = billingRunRepository;
         this.errorLogService = errorLogService;
+        this.readingEntityRepository = readingEntityRepository;
     }
 
     public BillingRunResult run() {
@@ -99,7 +103,11 @@ public class BillingRunService {
     }
 
     private BillingRunResult processUsers(LocalDate from, LocalDate to, Consumer<int[]> onProgress) {
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findAll().stream()
+                .filter(u -> !readingEntityRepository
+                        .findByUserReferenceAndInvoicedFalse(u.reference()).isEmpty())
+                .toList();
+
         int total = users.size();
         int success = 0, failed = 0, skipped = 0;
 
@@ -110,10 +118,8 @@ public class BillingRunService {
                         .generateAndSaveInvoice(user.reference(), from, to);
                 if (invoice.isPresent()) {
                     success++;
-                    System.out.println("Success: " + user.reference());
                 } else {
                     skipped++;
-                    System.out.println("Skipped: " + user.reference());
                     errorLogService.log("NO_READINGS", "Няма достатъчно отчети",
                             user.reference(), "BillingRunService", Severity.WARNING);
                 }
