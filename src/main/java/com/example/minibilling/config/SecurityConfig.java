@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/audit/**").hasRole("ADMIN")
                         .requestMatchers("/customers/**").hasRole("ADMIN")
                         .requestMatchers("/usage/**").hasRole("ADMIN")
+                        .requestMatchers("/readings/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

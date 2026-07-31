@@ -2,6 +2,7 @@ package com.example.minibilling.repository;
 
 import com.example.minibilling.model.domain.Invoice;
 import com.example.minibilling.model.domain.InvoiceLine;
+import com.example.minibilling.model.domain.InvoiceSummary;
 import com.example.minibilling.model.domain.ProductType;
 import com.example.minibilling.model.entity.InvoiceEntity;
 import com.example.minibilling.model.entity.LineEntity;
@@ -11,11 +12,20 @@ import com.example.minibilling.repository.jpa.UserEntityRepository;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Repository
 public class InvoiceRepository {
+
+    private static final String[] MONTHS_BG = {
+            "Яну", "Фев", "Мар", "Апр", "Май", "Юни",
+            "Юли", "Авг", "Сеп", "Окт", "Ное", "Дек"
+    };
 
     private final InvoiceEntityRepository invoiceEntityRepository;
     private final UserEntityRepository userEntityRepository;
@@ -28,7 +38,6 @@ public class InvoiceRepository {
 
     public void save(Invoice invoice, String reference, String period) {
         UserEntity userEntity = userEntityRepository.findByReference(reference);
-
         InvoiceEntity entity = new InvoiceEntity();
         entity.setId(UUID.randomUUID().toString().replace("-", ""));
         entity.setDateTime(invoice.documentDate());
@@ -52,7 +61,6 @@ public class InvoiceRepository {
             lineEntity.setInvoice(entity);
             entity.getLines().add(lineEntity);
         }
-
         invoiceEntityRepository.save(entity);
     }
 
@@ -60,6 +68,25 @@ public class InvoiceRepository {
         InvoiceEntity entity = invoiceEntityRepository.findByUserReferenceAndPeriod(reference, period);
         if (entity == null) return null;
         return toDomain(entity);
+    }
+
+    public List<InvoiceSummary> findAllSummaries() {
+        return invoiceEntityRepository.findAll()
+                .stream()
+                .map(this::toSummary)
+                .toList();
+    }
+
+    public List<InvoiceSummary> findSummariesByReference(String reference) {
+        return invoiceEntityRepository.findByUserReference(reference)
+                .stream()
+                .map(this::toSummary)
+                .toList();
+    }
+
+    public List<InvoiceSummary> findSummariesForUser(String reference) {
+        if (reference == null) return List.of();
+        return findSummariesByReference(reference);
     }
 
     public Invoice toDomain(InvoiceEntity entity) {
@@ -84,5 +111,29 @@ public class InvoiceRepository {
                 entity.getTotalAmount().doubleValue(),
                 lines
         );
+    }
+
+    private InvoiceSummary toSummary(InvoiceEntity entity) {
+        return new InvoiceSummary(
+                "INV-" + entity.getDateTime().getYear() + "-" + entity.getNumber(),
+                "CUS-" + entity.getUser().getReference(),
+                entity.getUser().getName(),
+                formatPeriod(entity.getPeriod()),
+                formatAmount(entity.getTotalAmount()),
+                "Generated"
+        );
+    }
+
+    private String formatPeriod(String period) {
+        String startPart = period.split("_")[0];
+        LocalDate start = LocalDate.parse(startPart);
+        return MONTHS_BG[start.getMonthValue() - 1] + " " + start.getYear();
+    }
+
+    private String formatAmount(BigDecimal amount) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.forLanguageTag("bg"));
+        symbols.setGroupingSeparator(' ');
+        DecimalFormat format = new DecimalFormat("#,##0.00", symbols);
+        return format.format(amount) + " лв.";
     }
 }

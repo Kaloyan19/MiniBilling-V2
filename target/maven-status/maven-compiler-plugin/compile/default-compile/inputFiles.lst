@@ -8,6 +8,7 @@ C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\ErrorLogController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\ImportController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\LoginRequest.java
+C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\ReadingController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\StatsController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\controllers\UsageController.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\exception\BillingDataException.java
@@ -23,6 +24,7 @@ C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\DistributionLine.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\Invoice.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\InvoiceLine.java
+C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\InvoiceSummary.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\PricePeriod.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\ProductType.java
 C:\Users\USER\IdeaProjects\minibilling-v2\src\main\java\com\example\minibilling\model\domain\Reading.java

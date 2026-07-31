@@ -39,6 +39,9 @@ public class ReadingImporter implements FileImporter{
     @Transactional
     @Override
     public void importFile(MultipartFile file) throws ImportException {
+        if (file.isEmpty()) {
+            throw new ImportException("Файлът е празен!");
+        }
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
