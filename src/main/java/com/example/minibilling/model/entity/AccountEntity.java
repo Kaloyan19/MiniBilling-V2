@@ -12,6 +12,9 @@ public class AccountEntity {
     @Column(unique = true)
     private String username;
 
+    @Column(name = "customer_reference")
+    private String customerReference;
+
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -23,9 +26,11 @@ public class AccountEntity {
     public String getUsername() { return username; }
     public String getPassword() { return password; }
     public Role getRole() { return role; }
+    public String getCustomerReference() { return customerReference; }
 
     public void setId(String id) { this.id = id; }
     public void setUsername(String username) { this.username = username; }
     public void setPassword(String password) { this.password = password; }
     public void setRole(Role role) { this.role = role; }
+    public void setCustomerReference(String customerReference) { this.customerReference = customerReference; }
 }

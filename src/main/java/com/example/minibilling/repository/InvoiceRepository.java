@@ -79,6 +79,18 @@ public class InvoiceRepository {
                 .toList();
     }
 
+    public List<InvoiceSummary> findSummariesForUser(String reference) {
+        if (reference == null) return List.of();
+        return findSummariesByReference(reference);
+    }
+
+    public List<InvoiceSummary> findSummariesByReference(String reference) {
+        return invoiceEntityRepository.findByUserReference(reference)
+                .stream()
+                .map(this::toSummary)
+                .toList();
+    }
+
     private InvoiceSummary toSummary(InvoiceEntity entity) {
         return new InvoiceSummary(
                 "INV-" + entity.getDateTime().getYear() + "-" + entity.getNumber(),

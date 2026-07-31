@@ -34,6 +34,9 @@ public class PriceImporter implements FileImporter {
     @Transactional
     @Override
     public void importFile(MultipartFile file) throws ImportException {
+        if (file.isEmpty()) {
+            throw new ImportException("Файлът е празен!");
+        }
         try {
             String filename = validateFilename(file);
             int priceListNumber = extractPriceListNumber(filename);

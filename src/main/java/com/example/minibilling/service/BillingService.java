@@ -55,12 +55,14 @@ public class BillingService {
     }
 
     private List<Reading> findReadings(User user, LocalDate from, LocalDate to) {
-        return readingRepository.findByCustomerReference(user.reference())
+        List<Reading> readings = readingRepository.findByCustomerReference(user.reference())
                 .stream()
                 .filter(r -> !r.date().toLocalDate().isBefore(from))
                 .filter(r -> !r.date().toLocalDate().isAfter(to))
                 .sorted(Comparator.comparing(Reading::date))
                 .toList();
+        System.out.println("Readings for " + user.reference() + ": " + readings.size());
+        return readings;
     }
 
     private List<PricePeriod> findPrices(User user) {

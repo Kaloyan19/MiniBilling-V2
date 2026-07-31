@@ -108,9 +108,12 @@ public class BillingRunService {
             try {
                 Optional<Invoice> invoice = billingService
                         .generateAndSaveInvoice(user.reference(), from, to);
-                if (invoice.isPresent()) success++;
-                else {
+                if (invoice.isPresent()) {
+                    success++;
+                    System.out.println("Success: " + user.reference());
+                } else {
                     skipped++;
+                    System.out.println("Skipped: " + user.reference());
                     errorLogService.log("NO_READINGS", "Няма достатъчно отчети",
                             user.reference(), "BillingRunService", Severity.WARNING);
                 }
