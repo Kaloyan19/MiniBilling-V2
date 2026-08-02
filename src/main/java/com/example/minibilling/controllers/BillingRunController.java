@@ -33,7 +33,7 @@ public class BillingRunController {
 
     @GetMapping(value = "/run/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamBillingRun() {
-        SseEmitter emitter = new SseEmitter(300000L); // 5 минути timeout
+        SseEmitter emitter = new SseEmitter(300000L);
         billingRunService.runWithProgress(emitter);
         return emitter;
     }

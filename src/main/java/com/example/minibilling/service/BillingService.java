@@ -45,13 +45,11 @@ public class BillingService {
         if (invoice.isEmpty()) return Optional.empty();
 
         List<InvoiceLine> lines = invoice.get().lines();
-        System.out.println("Lines size: " + lines.size()); // ← тук
         String period = lines.get(0).lineStart().toLocalDate() + "_" +
                 lines.get(lines.size()-1).lineEnd().toLocalDate();
 
         invoiceRepository.save(invoice.get(), reference, period);
 
-        // маркираме readings като invoiced
         readingEntityRepository.findByUserReferenceAndInvoicedFalse(reference)
                 .forEach(r -> {
                     r.setInvoiced(true);
@@ -66,24 +64,19 @@ public class BillingService {
         if (user == null) throw new UserNotFoundException(reference);
 
         List<Reading> readings = findReadings(user);
-        System.out.println(reference + " readings: " + readings.size());
         if (readings.size() < 2) return Optional.empty();
 
         List<PricePeriod> prices = findPrices(user);
-        System.out.println(reference + " prices: " + prices.size()); // ← добави тук
         List<InvoiceLine> lines = createInvoiceLines(readings, prices, user);
-        System.out.println(reference + " lines: " + lines.size()); // ← и тук
         return Optional.of(buildInvoice(user, lines));
     }
 
     private List<Reading> findReadings(User user) {
-        // последното invoiced reading (anchor point)
         Optional<ReadingEntity> lastInvoicedOpt = readingEntityRepository
                 .findTopByUserReferenceAndInvoicedTrueOrderByDateTimeDesc(user.reference());
 
         ReadingEntity lastInvoiced = lastInvoicedOpt.orElse(null);
 
-        // всички uninvoiced readings
         List<ReadingEntity> uninvoiced = readingEntityRepository
                 .findByUserReferenceAndInvoicedFalse(user.reference());
 
@@ -112,13 +105,10 @@ public class BillingService {
         for (int i = 0; i < readings.size() - 1; i++) {
             Reading from = readings.get(i);
             Reading to = readings.get(i + 1);
-            System.out.println("Processing: " + from.date() + " -> " + to.date());
             double totalQuantity = round2(to.meterReading() - from.meterReading());
-            System.out.println("Quantity: " + totalQuantity);
 
             List<DistributionLine> distributed = distributionService.distribute(
                     from.date(), to.date(), totalQuantity, prices);
-            System.out.println("Distributed lines: " + distributed.size());
 
             for (DistributionLine dl : distributed) {
                 lines.add(new InvoiceLine(index++, dl.quantity(), dl.start(), dl.end(),
